@@ -1,18 +1,21 @@
-from nltk.stem.porter import PorterStemmer
-from sklearn.feature_extraction.text import TfidfVectorizer
-import networkx as nx
-from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.metrics.pairwise import pairwise_kernels
-import nltk
-from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import stopwords
+###################
+# Author: Padmanabh
+# License: GPLv3
+###################
+
 from goose import Goose
+import networkx as nx
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+from nltk.stem.wordnet import WordNetLemmatizer
 from scipy import sparse
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import pairwise_kernels
 
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 sentence_tokenizer = sent_detector.tokenize
 stemmer = PorterStemmer()
-
 
 def goose_extractor(url):
     '''get article contents'''
