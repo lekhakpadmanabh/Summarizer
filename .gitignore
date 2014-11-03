@@ -1,0 +1,7 @@
+*.pyc
+*.log
+*.db
+*.ipynb
+*.ini
+*.cfg
+notebooks/
