@@ -16,18 +16,21 @@ stemmer = PorterStemmer()
 
 def goose_extractor(url):
     '''get article contents'''
+
     article = Goose().extract(url=url)
     return article.title, article.meta_description,\
                               article.cleaned_text
     
 def tokenize(sentence):
     '''Tokenizer and Stemmer'''
+
     tokens = nltk.word_tokenize(sentence)
     tokens = [stemmer.stem(tk) for tk in tokens]
     return tokens
 
 def textrank(matrix):
     '''return textrank vector'''
+
     nx_graph = nx.from_scipy_sparse_matrix(sparse.csr_matrix(matrix))
     return nx.pagerank(nx_graph)
 
@@ -45,18 +48,29 @@ def _summarize(full_text, num_sentences=4):
     return sorted(top_scorers, key=lambda tup: tup[1])
 
 def summarize_url(url, num_sentences=4):
-    '''Returns summary for provided url
-        parameters: url string, number of sentences
-        returns: tuple containing
-                    * human summary if contained
-                      in article's meta description 
-                    * tuple with score, index indicating
-                      order in document, sentence string
+    '''returns: tuple containing
+       * human summary if contained
+         in article's meta description 
+       * tuple with score, index indicating
+         order in document, sentence string
     '''
 
     title, hsumm, full_text = goose_extractor(url)
     return hsumm, _summarize(full_text, num_sentences)
 
 def summarize_text(full_text, num_sentences=4):
+    '''returns: tuple with score, index indicating
+       order in document, sentence string
+    '''
+
     return _summarize(full_text)
 
+def format_keypoints(key_points):
+    '''returns markdown formatted
+    string for keypoints'''
+
+    num_pts = len(key_points)
+    fmt = u""
+    for i in xrange(num_pts):
+        fmt += ">* {{{}}}\n".format(i)
+    return fmt.format(*[p[2] for p in key_points])
