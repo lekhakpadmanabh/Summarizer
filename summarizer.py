@@ -37,7 +37,18 @@ def textrank(matrix):
     nx_graph = nx.from_scipy_sparse_matrix(sparse.csr_matrix(matrix))
     return nx.pagerank(nx_graph)
 
+def _format(key_points):
+    '''returns markdown formatted
+    string for keypoints'''
+
+    num_pts = len(key_points)
+    fmt = u""
+    for i in xrange(num_pts):
+        fmt += ">* {{{}}}\n".format(i)
+    return fmt.format(*[p[2] for p in key_points])
+
 def _summarize(full_text, num_sentences=4):
+
     sentences = sentence_tokenizer(full_text)
     tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english', ngram_range=(1,2))
     norm = tfidf.fit_transform(sentences)
@@ -50,30 +61,30 @@ def _summarize(full_text, num_sentences=4):
                          reverse=True)[:num_sentences]
     return sorted(top_scorers, key=lambda tup: tup[1])
 
-def summarize_url(url, num_sentences=4):
-    '''returns: tuple containing
+def summarize_url(url, num_sentences=4, fmt="raw"):
+    '''fmt='raw' returns: tuple containing
        * human summary if contained
          in article's meta description 
        * tuple with score, index indicating
          order in document, sentence string
+       fmt='md' returns human summary and markdown
+       formatted keypoints
     '''
 
     title, hsumm, full_text = goose_extractor(url)
-    return hsumm, _summarize(full_text, num_sentences)
+    if fmt == "raw":
+        return hsumm, _summarize(full_text, num_sentences)
+    return hsumm, _format(_summarize(full_text, num_sentences))
 
-def summarize_text(full_text, num_sentences=4):
-    '''returns: tuple with score, index indicating
+def summarize_text(full_text, num_sentences=4, fmt="raw"):
+    '''fmt='raw' returns tuple with score, index indicating
        order in document, sentence string
+       fmt='md' returns markdown formatted keypoints
     '''
 
-    return _summarize(full_text)
+    if fmt == "raw":
+        return _summarize(full_text)
+    return _format(_summarize(full_text))
 
-def format_keypoints(key_points):
-    '''returns markdown formatted
-    string for keypoints'''
 
-    num_pts = len(key_points)
-    fmt = u""
-    for i in xrange(num_pts):
-        fmt += ">* {{{}}}\n".format(i)
-    return fmt.format(*[p[2] for p in key_points])
+
