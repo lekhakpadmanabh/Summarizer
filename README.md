@@ -3,7 +3,10 @@ Summarizer
 
 [Work In Progress] - Returns top-[n] most relevant sentences from a dcoument.
 
+
 To install
+
+
     git clone https://github.com/lekhakpadmanabh/Summarizer.git
     cd Summarizer
     pip install -r requirements.txt
