@@ -6,17 +6,15 @@
 from goose import Goose
 import networkx as nx
 import nltk
-from nltk.stem.porter import PorterStemmer
-from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import pairwise_kernels
 
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 sentence_tokenizer = sent_detector.tokenize
-stemmer = PorterStemmer()
+stemmer = nltk.stem.porter.PorterStemmer()
 
 def goose_extractor(url):
-    '''get article contents'''
+    '''Goose project webpage extraction'''
 
     article = Goose().extract(url=url)
     return article.title, article.meta_description,\
@@ -25,15 +23,15 @@ def goose_extractor(url):
 def tokenize(sentence):
     '''Tokenizer and Stemmer'''
 
-    tokens = nltk.word_tokenize(sentence)
-    tokens = [stemmer.stem(tk) for tk in tokens]
+    _tokens = nltk.word_tokenize(sentence)
+    tokens = [stemmer.stem(tk) for tk in _tokens]
     return tokens
 
 def _textrank(matrix):
     '''return textrank vector'''
 
-    nx_graph = nx.from_numpy_matrix(matrix)
-    return nx.pagerank(nx_graph)
+    graph = nx.from_numpy_matrix(matrix)
+    return nx.pagerank(graph)
 
 def _normalize(sentences):
     '''returns tf-idf matrix

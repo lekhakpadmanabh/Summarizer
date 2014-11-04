@@ -4,5 +4,8 @@
 *.ipynb
 *.ini
 *.cfg
+KeyptSummarizer.egg-info/
+build/
+dist/
 notebooks/
 classy_summarizer.py
