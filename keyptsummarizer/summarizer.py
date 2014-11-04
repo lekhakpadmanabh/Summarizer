@@ -8,18 +8,21 @@ import networkx as nx
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import pairwise_kernels
+from utilities import memoize
 
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 sentence_tokenizer = sent_detector.tokenize
 stemmer = nltk.stem.porter.PorterStemmer()
 
+@memoize
 def goose_extractor(url):
     '''Goose project webpage extraction'''
 
     article = Goose().extract(url=url)
     return article.title, article.meta_description,\
                               article.cleaned_text
-    
+
+
 def tokenize(sentence):
     '''Tokenizer and Stemmer'''
 
@@ -27,11 +30,13 @@ def tokenize(sentence):
     tokens = [stemmer.stem(tk) for tk in _tokens]
     return tokens
 
+
 def _textrank(matrix):
     '''return textrank vector'''
 
     graph = nx.from_numpy_matrix(matrix)
     return nx.pagerank(graph)
+
 
 def _normalize(sentences):
     '''returns tf-idf matrix
@@ -42,7 +47,6 @@ def _normalize(sentences):
                             decode_error='ignore',
                             ngram_range=(1,2))
     return tfidf.fit_transform(sentences)
-
 
 
 def _summarize(full_text, num_sentences=4):
@@ -60,6 +64,7 @@ def _summarize(full_text, num_sentences=4):
                          reverse=True)[:num_sentences]
     return sorted(top_scorers, key=lambda tup: tup[1])
 
+
 def _format(key_points):
     '''returns markdown formatted
     string for keypoints'''
@@ -69,6 +74,7 @@ def _format(key_points):
     for i in xrange(num_pts):
         fmt += ">* {{{}}}\n".format(i)
     return fmt.format(*[p[2] for p in key_points])
+
 
 def summarize_url(url, num_sentences=4, fmt=None):
     '''returns: tuple containing
@@ -95,6 +101,3 @@ def summarize_text(full_text, num_sentences=4, fmt=None):
     if fmt == "md":
         return _format(_summarize(full_text, num_sentences))
     return _summarize(full_text, num_sentences)
-
-
-
