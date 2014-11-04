@@ -6,9 +6,7 @@
 from goose import Goose
 import networkx as nx
 import nltk
-from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-from nltk.stem.wordnet import WordNetLemmatizer
 from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import pairwise_kernels
@@ -31,11 +29,38 @@ def tokenize(sentence):
     tokens = [stemmer.stem(tk) for tk in tokens]
     return tokens
 
-def textrank(matrix):
+def _textrank(matrix):
     '''return textrank vector'''
 
-    nx_graph = nx.from_scipy_sparse_matrix(sparse.csr_matrix(matrix))
+    nx_graph = nx.from_numpy_matrix(matrix)
     return nx.pagerank(nx_graph)
+
+def _normalize(sentences):
+    '''returns tf-idf matrix
+    (unigrams+bigrams)'''
+
+    tfidf = TfidfVectorizer(tokenizer=tokenize,
+                            stop_words='english',
+                            decode_error='ignore',
+                            ngram_range=(1,2))
+    return tfidf.fit_transform(sentences)
+
+
+
+def _summarize(full_text, num_sentences=4):
+    '''returns tuple of scored sentences
+    in order of appearance'''
+
+    sentences = sentence_tokenizer(full_text)
+    norm = _normalize(sentences)
+    similarity_matrix = pairwise_kernels(norm, metric='cosine')
+    scores = _textrank(similarity_matrix)
+    scored_sentences = []
+    for i, s in enumerate(sentences):
+        scored_sentences.append((scores[i],i,s))
+    top_scorers = sorted(scored_sentences, key=lambda tup: tup[0], 
+                         reverse=True)[:num_sentences]
+    return sorted(top_scorers, key=lambda tup: tup[1])
 
 def _format(key_points):
     '''returns markdown formatted
@@ -47,22 +72,8 @@ def _format(key_points):
         fmt += ">* {{{}}}\n".format(i)
     return fmt.format(*[p[2] for p in key_points])
 
-def _summarize(full_text, num_sentences=4):
-
-    sentences = sentence_tokenizer(full_text)
-    tfidf = TfidfVectorizer(tokenizer=tokenize, stop_words='english', ngram_range=(1,2))
-    norm = tfidf.fit_transform(sentences)
-    similarity_matrix = pairwise_kernels(norm, metric='cosine')
-    scores = textrank(similarity_matrix)
-    scored_sentences = []
-    for i, s in enumerate(sentences):
-        scored_sentences.append((scores[i],i,s))
-    top_scorers = sorted(scored_sentences, key=lambda tup: tup[0], 
-                         reverse=True)[:num_sentences]
-    return sorted(top_scorers, key=lambda tup: tup[1])
-
-def summarize_url(url, num_sentences=4, fmt="raw"):
-    '''fmt='raw' returns: tuple containing
+def summarize_url(url, num_sentences=4, fmt=None):
+    '''returns: tuple containing
        * human summary if contained
          in article's meta description 
        * tuple with score, index indicating
@@ -72,19 +83,20 @@ def summarize_url(url, num_sentences=4, fmt="raw"):
     '''
 
     title, hsumm, full_text = goose_extractor(url)
-    if fmt == "raw":
-        return hsumm, _summarize(full_text, num_sentences)
-    return hsumm, _format(_summarize(full_text, num_sentences))
+    if fmt == "md":
+        return hsumm, _format(_summarize(full_text, num_sentences))
+    return hsumm, _summarize(full_text, num_sentences)
 
-def summarize_text(full_text, num_sentences=4, fmt="raw"):
-    '''fmt='raw' returns tuple with score, index indicating
+
+def summarize_text(full_text, num_sentences=4, fmt=None):
+    '''returns tuple with score, index indicating
        order in document, sentence string
        fmt='md' returns markdown formatted keypoints
     '''
 
-    if fmt == "raw":
-        return _summarize(full_text)
-    return _format(_summarize(full_text))
+    if fmt == "md":
+        return _format(_summarize(full_text, num_sentences))
+    return _summarize(full_text, num_sentences)
 
 
 
