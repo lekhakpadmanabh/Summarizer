@@ -16,20 +16,30 @@ stemmer = nltk.stem.porter.PorterStemmer()
 
 @memoize
 def goose_extractor(url):
-    '''Goose project webpage extraction'''
+    '''webpage extraction using
+       Goose Library'''
 
     article = Goose().extract(url=url)
     return article.title, article.meta_description,\
                               article.cleaned_text
 
 
-def tokenize(sentence):
+def _tokenize(sentence):
     '''Tokenizer and Stemmer'''
 
     _tokens = nltk.word_tokenize(sentence)
     tokens = [stemmer.stem(tk) for tk in _tokens]
     return tokens
 
+def _normalize(sentences):
+    '''returns tf-idf matrix
+       (unigrams+bigrams)'''
+
+    tfidf = TfidfVectorizer(tokenizer=_tokenize,
+                            stop_words='english',
+                            decode_error='ignore',
+                            ngram_range=(1,2))
+    return tfidf.fit_transform(sentences)
 
 def _textrank(matrix):
     '''return textrank vector'''
@@ -38,20 +48,9 @@ def _textrank(matrix):
     return nx.pagerank(graph)
 
 
-def _normalize(sentences):
-    '''returns tf-idf matrix
-    (unigrams+bigrams)'''
-
-    tfidf = TfidfVectorizer(tokenizer=tokenize,
-                            stop_words='english',
-                            decode_error='ignore',
-                            ngram_range=(1,2))
-    return tfidf.fit_transform(sentences)
-
-
 def _summarize(full_text, num_sentences=4):
     '''returns tuple of scored sentences
-    in order of appearance'''
+       in order of appearance'''
 
     sentences = sentence_tokenizer(full_text)
     norm = _normalize(sentences)
@@ -67,7 +66,7 @@ def _summarize(full_text, num_sentences=4):
 
 def _format(key_points):
     '''returns markdown formatted
-    string for keypoints'''
+       string for keypoints'''
 
     num_pts = len(key_points)
     fmt = u""
