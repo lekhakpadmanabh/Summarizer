@@ -28,7 +28,6 @@ def memoize(func):
         try:
             return cache[args]
         except KeyError:
-            print cache
             result = cache[args] = func(*args)
             return result
     return memoized
