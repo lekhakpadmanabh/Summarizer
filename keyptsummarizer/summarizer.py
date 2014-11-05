@@ -48,20 +48,25 @@ def _textrank(matrix):
     return nx.pagerank(graph)
 
 
-def _summarize(full_text, num_sentences=4):
+def _summarize(full_text, title='', num_sentences=4):
     '''returns tuple of scored sentences
        in order of appearance'''
 
+    st_index = 0
     sentences = sentence_tokenizer(full_text)
+    if title:
+        sentences.insert(0,title)
+        st_index = 1
     norm = _normalize(sentences)
     similarity_matrix = pairwise_kernels(norm, metric='cosine')
     scores = _textrank(similarity_matrix)
     scored_sentences = []
     for i, s in enumerate(sentences):
         scored_sentences.append((scores[i],i,s))
-    top_scorers = sorted(scored_sentences, key=lambda tup: tup[0], 
-                         reverse=True)[:num_sentences]
-    return sorted(top_scorers, key=lambda tup: tup[1])
+    top_scorers = sorted(scored_sentences,
+                         key=lambda tup: tup[0], 
+                         reverse=True)
+    return sorted(top_scorers, key=lambda tup: tup[1])[st_index:num_sentences+1]
 
 
 def _format(key_points):
@@ -87,16 +92,16 @@ def summarize_url(url, num_sentences=4, fmt=None):
 
     title, hsumm, full_text = goose_extractor(url)
     if fmt == "md":
-        return hsumm, _format(_summarize(full_text, num_sentences))
-    return hsumm, _summarize(full_text, num_sentences)
+        return hsumm, _format(_summarize(full_text, title, num_sentences))
+    return hsumm, _summarize(full_text, title, num_sentences)
 
 
-def summarize_text(full_text, num_sentences=4, fmt=None):
+def summarize_text(full_text, title='', num_sentences=4, fmt=None):
     '''returns tuple with score, index indicating
        order in document, sentence string
        fmt='md' returns markdown formatted keypoints
     '''
 
     if fmt == "md":
-        return _format(_summarize(full_text, num_sentences))
-    return _summarize(full_text, num_sentences)
+        return _format(_summarize(full_text, title, num_sentences))
+    return _summarize(full_text, title, num_sentences)

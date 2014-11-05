@@ -1,7 +1,7 @@
 Summarizer
 ==========
 
-[Work In Progress] - Returns top-[n] most relevant sentences from a dcoument.
+Returns top-[n] most relevant sentences from a document.
 
 
 To install
