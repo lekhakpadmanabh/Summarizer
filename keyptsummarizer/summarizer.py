@@ -53,13 +53,12 @@ def _textrank(matrix):
 
 def _summarize(full_text, title='', num_sentences=4):
     '''returns tuple of scored sentences
-       in order of appearance'''
+       in order of appearance
+       Note: Doing an A/B test to
+       compare results, reverting to 
+       original algorithm.'''
 
-    st_index = 0
     sentences = sentence_tokenizer(full_text)
-    if title:
-        sentences.insert(0,title)
-        st_index = 1
     norm = _normalize(sentences)
     similarity_matrix = pairwise_kernels(norm, metric='cosine')
     scores = _textrank(similarity_matrix)
@@ -68,8 +67,8 @@ def _summarize(full_text, title='', num_sentences=4):
         scored_sentences.append((scores[i],i,s))
     top_scorers = sorted(scored_sentences,
                          key=lambda tup: tup[0], 
-                         reverse=True)
-    return sorted(top_scorers, key=lambda tup: tup[1])[st_index:num_sentences+1]
+                         reverse=True)[:num_sentences]
+    return sorted(top_scorers, key=lambda tup: tup[1])
 
 def _format(key_points):
     '''returns markdown formatted
