@@ -23,6 +23,8 @@ def goose_extractor(url):
     return article.title, article.meta_description,\
                               article.cleaned_text
 
+class ArticleExtractionFail(Exception):
+    pass
 
 def _tokenize(sentence):
     '''Tokenizer and Stemmer'''
@@ -42,7 +44,8 @@ def _normalize(sentences):
     return tfidf.fit_transform(sentences)
 
 def _textrank(matrix):
-    '''return textrank vector'''
+    '''returns principal eigenvector
+       of the adjacency matrix'''
 
     graph = nx.from_numpy_matrix(matrix)
     return nx.pagerank(graph)
@@ -68,7 +71,6 @@ def _summarize(full_text, title='', num_sentences=4):
                          reverse=True)
     return sorted(top_scorers, key=lambda tup: tup[1])[st_index:num_sentences+1]
 
-
 def _format(key_points):
     '''returns markdown formatted
        string for keypoints'''
@@ -91,6 +93,8 @@ def summarize_url(url, num_sentences=4, fmt=None):
     '''
 
     title, hsumm, full_text = goose_extractor(url)
+    if not full_text:
+        raise ArticleExtractionFail("Couldn't extract: {}".format(url))
     if fmt == "md":
         return hsumm, _format(_summarize(full_text, title, num_sentences))
     return hsumm, _summarize(full_text, title, num_sentences)
