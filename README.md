@@ -4,13 +4,13 @@ Summarizer
 Returns top-[n] most relevant sentences from a document.
 
 
-To install
+Installation
 
-
+    mkvirtualenv --no-site-packages keyptenv # or your preferred method
     git clone https://github.com/lekhakpadmanabh/Summarizer.git
     cd Summarizer
     pip install -r requirements.txt
-    python setup.py install
+    python setup.py install --record installed_files.txt
 
 ##Usage
 
