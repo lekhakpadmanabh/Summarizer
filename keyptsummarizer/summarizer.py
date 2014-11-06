@@ -3,6 +3,9 @@
 # License: GPLv3
 ###################
 
+from better_sentences import better_sentences
+from exceptions import ArticleExtractionFail
+from formatters import Formatter
 from goose import Goose
 import networkx as nx
 import nltk
@@ -11,8 +14,11 @@ from sklearn.metrics.pairwise import pairwise_kernels
 from utilities import memoize
 
 sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-sentence_tokenizer = sent_detector.tokenize
 stemmer = nltk.stem.porter.PorterStemmer()
+
+@better_sentences
+def sentence_tokenizer(text):
+    return sent_detector.tokenize(text)
 
 @memoize
 def goose_extractor(url):
@@ -22,9 +28,6 @@ def goose_extractor(url):
     article = Goose().extract(url=url)
     return article.title, article.meta_description,\
                               article.cleaned_text
-
-class ArticleExtractionFail(Exception):
-    pass
 
 def _tokenize(sentence):
     '''Tokenizer and Stemmer'''
@@ -51,7 +54,7 @@ def _textrank(matrix):
     return nx.pagerank(graph)
 
 
-def _summarize(full_text, title='', num_sentences=4):
+def _intertext_score(full_text, title='', num_sentences=4):
     '''returns tuple of scored sentences
        in order of appearance
        Note: Doing an A/B test to
@@ -67,18 +70,61 @@ def _summarize(full_text, title='', num_sentences=4):
         scored_sentences.append((scores[i],i,s))
     top_scorers = sorted(scored_sentences,
                          key=lambda tup: tup[0], 
-                         reverse=True)[:num_sentences]
-    return sorted(top_scorers, key=lambda tup: tup[1])
+                         reverse=True)
+    return top_scorers
+    #return sorted(top_scorers, key=lambda tup: tup[1])
 
-def _format(key_points):
-    '''returns markdown formatted
-       string for keypoints'''
+def _title_similarity_score(full_text, title='', num_sentences=4):
+    """Similarity scores for sentences with
+       title in descending order"""
 
-    num_pts = len(key_points)
-    fmt = u""
-    for i in xrange(num_pts):
-        fmt += ">* {{{}}}\n".format(i)
-    return fmt.format(*[p[2] for p in key_points])
+    sentences = sentence_tokenizer(full_text)
+    norm = _normalize([title]+sentences)
+    similarity_matrix = pairwise_kernels(norm, metric='cosine')
+    return sorted(zip(
+                     similarity_matrix[0,1:],
+                     range(len(similarity_matrix)),
+                     sentences
+                     ),
+                 key = lambda tup: tup[0],
+                 reverse=True
+                 )
+
+def _remove_title_from_tuples(its, tss):
+    index = None
+    for i,el in enumerate(its):
+        if el[2] == tss[0][2]:
+            index = i
+    if index is None: 
+        raise Exception("Something fatal: tss and its don't align")
+    del its[index]
+    del tss[0]
+    return its, tss
+
+def _aggregrate_scores(its,tss,num_sentences):
+    """rerank the two vectors by
+    min aggregrate rank, reorder"""
+    final = []
+    for i,el in enumerate(its):
+        for j, le in enumerate(tss):
+            if el[2] == le[2]:
+                assert el[1] == le[1]
+                final.append((el[1],i+j,el[2]))
+    _final = sorted(final, key = lambda tup: tup[1])[:num_sentences]
+    return sorted(_final, key = lambda tup: tup[0])
+
+
+def _eval_meta_as_summary(meta):
+    """return type bool"""
+    if meta == '':
+        return False
+    if len(meta)>500:
+        # http://www.reddit.com/r/worldnews/comments/2lf4te
+        return False
+    if 'login' in meta:
+        return False
+    return True
+
 
 
 def summarize_url(url, num_sentences=4, fmt=None):
@@ -91,20 +137,26 @@ def summarize_url(url, num_sentences=4, fmt=None):
        formatted keypoints
     '''
 
-    title, hsumm, full_text = goose_extractor(url)
+    title, meta, full_text = goose_extractor(url)
+
     if not full_text:
         raise ArticleExtractionFail("Couldn't extract: {}".format(url))
-    if fmt == "md":
-        return hsumm, _format(_summarize(full_text, title, num_sentences))
-    return hsumm, _summarize(full_text, title, num_sentences)
 
+    intertext_scores = _intertext_score(full_text, title, num_sentences)
+    title_similarity_scores = _title_similarity_score(full_text, 
+                                                      title, num_sentences)
 
-def summarize_text(full_text, title='', num_sentences=4, fmt=None):
-    '''returns tuple with score, index indicating
-       order in document, sentence string
-       fmt='md' returns markdown formatted keypoints
-    '''
+    if _eval_meta_as_summary(meta):
+        summ = meta
+    else:
+        summ = title_similarity_scores[0][2]
+        intertext_scores, title_similarity_scores = \
+            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
 
-    if fmt == "md":
-        return _format(_summarize(full_text, title, num_sentences))
-    return _summarize(full_text, title, num_sentences)
+    scores = _aggregrate_scores(intertext_scores, title_similarity_scores, num_sentences)
+
+    if fmt:
+        formatted = Formatter(scores, fmt).frmt()
+        return summ, formatted
+
+    return summ, scores
