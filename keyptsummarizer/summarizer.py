@@ -115,11 +115,11 @@ def _aggregrate_scores(its,tss,num_sentences):
 
 
 def _eval_meta_as_summary(meta):
-    """return type bool"""
+    """some crude heuristics for now"""
+
     if meta == '':
         return False
     if len(meta)>500:
-        # http://www.reddit.com/r/worldnews/comments/2lf4te
         return False
     if 'login' in meta:
         return False
@@ -148,10 +148,20 @@ def summarize_url(url, num_sentences=4, fmt=None):
 
     if _eval_meta_as_summary(meta):
         summ = meta
+        if title_similarity_scores[0][2] in summ:
+            intertext_scores, title_similarity_scores = \
+            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
+        if summ in title_similarity_scores[0][2]:
+            summ = title_similarity_scores[0][2]
+            intertext_scores, title_similarity_scores = \
+            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
     else:
         summ = title_similarity_scores[0][2]
         intertext_scores, title_similarity_scores = \
             _remove_title_from_tuples(intertext_scores, title_similarity_scores)
+
+    
+        
 
     scores = _aggregrate_scores(intertext_scores, title_similarity_scores, num_sentences)
 
