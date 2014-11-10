@@ -19,7 +19,7 @@ Installation
 
     article = k.Summarizer(url, fmt='md')
 
-You can also specify the number of sentences (defaults to 4) or leave out the `fmt` parameter to get the summary as a list. By default it resorts to using the Goose text extraction library, a custom extractor can be specified if it doesn't fit the purpose. 
+You can also specify the number of sentences (defaults to 4) or leave out the `fmt` parameter to get the summary as a list. By default it resorts to using the Goose library, a custom extractor can be specified if it doesn't fit the purpose.
 
     >>> print article.text # the raw text returned by the extractor
     >>> print article.meta # meta description of the webpage
@@ -37,4 +37,4 @@ For no formatting, just use `article = k.Summarizer(url)`
      u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
      u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
      
-There is an `entities` attribute for Summarizer instances which prints out any proper nouns it could detect.
+There is an `entities` attribute for Summarizer instances which prints out any proper nouns it could detect using nltk helpers.
