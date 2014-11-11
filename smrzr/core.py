@@ -1,6 +1,6 @@
 ###################
 # Author: Padmanabh
-# License: GPLv3
+# License: Apache
 ###################
 
 from better_sentences import better_sentences
@@ -54,7 +54,7 @@ def _textrank(matrix):
     return nx.pagerank(graph)
 
 
-def _intertext_score(full_text, title='', num_sentences=4):
+def _intertext_score(full_text):
     '''returns tuple of scored sentences
        in order of appearance
        Note: Doing an A/B test to
@@ -72,9 +72,9 @@ def _intertext_score(full_text, title='', num_sentences=4):
                          key=lambda tup: tup[0], 
                          reverse=True)
     return top_scorers
-    #return sorted(top_scorers, key=lambda tup: tup[1])
 
-def _title_similarity_score(full_text, title='', num_sentences=4):
+
+def _title_similarity_score(full_text, title):
     """Similarity scores for sentences with
        title in descending order"""
 
@@ -127,7 +127,7 @@ def _eval_meta_as_summary(meta):
 
 
 
-def summarize_url(url, num_sentences=4, fmt=None):
+def summarize_url(url, num_sentences=4, fmt='default'):
     '''returns: tuple containing
        * human summary if contained
          in article's meta description 
@@ -142,31 +142,25 @@ def summarize_url(url, num_sentences=4, fmt=None):
     if not full_text:
         raise ArticleExtractionFail("Couldn't extract: {}".format(url))
 
-    intertext_scores = _intertext_score(full_text, title, num_sentences)
-    title_similarity_scores = _title_similarity_score(full_text, 
-                                                      title, num_sentences)
+    its = _intertext_score(full_text)
+    tss = _title_similarity_score(full_text,title)
 
     if _eval_meta_as_summary(meta):
         summ = meta
-        if title_similarity_scores[0][2] in summ:
-            intertext_scores, title_similarity_scores = \
-            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
-        if summ in title_similarity_scores[0][2]:
-            summ = title_similarity_scores[0][2]
-            intertext_scores, title_similarity_scores = \
-            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
+        if tss[0][2] in summ:
+            its, tss = _remove_title_from_tuples(its, tss)
+        if summ in tss[0][2]:
+            summ = tss[0][2]
+            its, tss = _remove_title_from_tuples(its, tss)
     else:
-        summ = title_similarity_scores[0][2]
-        intertext_scores, title_similarity_scores = \
-            _remove_title_from_tuples(intertext_scores, title_similarity_scores)
+        summ = tss[0][2]
+        its, tss = _remove_title_from_tuples(its, tss)
 
-    
-        
+    scores = [score[2] for score in _aggregrate_scores(its, tss, num_sentences)]
+    formatted = Formatter(scores, fmt).frmt()
+    return summ, formatted
 
-    scores = _aggregrate_scores(intertext_scores, title_similarity_scores, num_sentences)
-
-    if fmt:
-        formatted = Formatter(scores, fmt).frmt()
-        return summ, formatted
-
-    return summ, scores
+def summarize_text(full_text, num_sentences=4, fmt='default'):
+    its = _intertext_score(full_text)
+    kpts = [k[2] for k in sorted(its, key = lambda tup: tup[1])[:num_sentences]]
+    return kpts
