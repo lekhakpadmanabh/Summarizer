@@ -125,14 +125,11 @@ def _eval_meta_as_summary(meta):
         return False
     return True
 
-
-
 def summarize_url(url, num_sentences=4, fmt='default'):
     '''returns: tuple containing
        * human summary if contained
          in article's meta description 
-       * tuple with score, index indicating
-         order in document, sentence string
+       * key points
        fmt='md' returns human summary and markdown
        formatted keypoints
     '''
