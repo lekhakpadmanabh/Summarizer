@@ -37,10 +37,10 @@ In this case there was none but don't worry `smrzr` has it covered
 
 Get the key points
 
-    >>> print article.keypoints
-    [u'In the past, the Congress has often been written off after massive defeats but bounced back.',
-     u'Wherever the Congress has slipped to third or fourth position in a state, anti-incumbency has favoured the No 2 party, leaving the No 3 party out in the cold.',
-     u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
-     u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
+        >>> print article.keypoints
+        [u'In the past, the Congress has often been written off after massive defeats but bounced back.',
+         u'Wherever the Congress has slipped to third or fourth position in a state, anti-incumbency has favoured the No 2 party, leaving the No 3 party out in the cold.',
+         u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
+         u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
 
 There is an experimental `entities` attribute for Summarizer instance which prints out any proper nouns it could detect using nltk helpers. Switch it on by using `entities=True` while instantiating smrzr. There is also a command line interface so you can use `python -m smrzr -u <enter url here>`
