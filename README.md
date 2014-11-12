@@ -41,7 +41,8 @@ In this case there was none but don't worry `smrzr` has it covered
 
 ```python
     >>> print article.summary 
-    u'Having been thrashed in the general election, and again in the state elections last week in Maharashtra and Haryana, can the Congress bounce back?'```
+    u'Having been thrashed in the general election, and again in the state elections last week in Maharashtra and Haryana, can the Congress bounce back?'
+```
 
 Get the key points
 
