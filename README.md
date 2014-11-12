@@ -27,7 +27,7 @@ The easiest way to use it is to create an instance of the summarizer class
 article = smrzr.Summarizer(url)
 ```
 
-You can also specify the number of sentences using the optional `num_sentences` (defaults to 4) or specify a `fmt` (defaults to  `'default'`). The default extractor is [goose](https://github.com/grangier/python-goose) which works pretty well for most websites.
+You can also specify the number of sentences using the optional `num_sentences` (defaults to 4) or specify a `fmt` (defaults to  `'default'`). The default extractor is [goose](https://github.com/grangier/python-goose) which works pretty well for most websites. You can also specify a custom extractor.
 
 The article object has been populated with some attributes,
 
@@ -59,3 +59,10 @@ Get the key points
  u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
  u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
 ```
+There is also a command line interface, usage examples:
+
+```bash
+python -m smrzr --url <url here> --lines=3
+python -m smrzr -u <url here> -l=3 #non-verbose
+python -m smrzr --text <text here>
+python -m smrzr --file <filename>
