@@ -16,12 +16,6 @@ pip install -r requirements.txt
 python setup.py install --record installed_files.txt
 ```
 
-Installation via pip
-
-```bash
-pip install smrzr
-```
-
 ##Usage
 
 ```python
