@@ -62,7 +62,10 @@ Get the key points
 There is also a command line interface, usage examples:
 
 ```bash
-python -m smrzr --url <url here> --lines=3
-python -m smrzr -u <url here> -l=3 #non-verbose
-python -m smrzr --text <text here>
-python -m smrzr --file <filename>
+smrzr --url <url here> --lines=3
+smrzr -u <url here> -l=3 #non-verbose
+smrzr --text <text here>
+smrzr --file <filename>
+```
+
+You'd need to make it executable (or alias it), otherwise use `python -m smrzr [args]`
