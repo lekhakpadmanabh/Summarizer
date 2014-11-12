@@ -6,12 +6,20 @@ Returns top-[n] most relevant sentences from a document.
 
 ##Installation
 
+Its highly recommended to install it in a virtualenv.
+
 ```bash
 mkvirtualenv --no-site-packages keyptenv # or your preferred method
 git clone https://github.com/lekhakpadmanabh/Summarizer.git
 cd Summarizer
 pip install -r requirements.txt
 python setup.py install --record installed_files.txt
+```
+
+Installation via pip
+
+```bash
+pip install smrzr
 ```
 
 ##Usage
