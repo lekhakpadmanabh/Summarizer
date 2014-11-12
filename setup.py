@@ -16,5 +16,6 @@ setup(name='smrzr',
       long_description=read('README.md'),
       author='Pamdanabh',
       license='Apache',
+      download_url='https://github.com/lekhakpadmanabh/Summarizer/tarball/0.1',
       packages=['smrzr'],
      )
