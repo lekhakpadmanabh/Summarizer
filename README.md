@@ -59,9 +59,12 @@ Get the key points
  u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
  u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
 ```
-
-There is an experimental `entities` attribute for Summarizer instance which prints out any proper nouns it could detect using nltk helpers. Switch it on by using `entities=True` while instantiating smrzr. 
-
 ### Command Line usage
 
-There is also a command line interface, eg `python -m smrzr -u <enter url here>`
+There is also a command line interface, usage examples:
+
+```bash
+python -m smrzr --url <url here> --lines=3
+python -m smrzr -u <url here> -l=3 #non-verbose
+python -m smrzr --text <text here>
+python -m smrzr --file <filename>

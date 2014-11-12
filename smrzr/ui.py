@@ -2,11 +2,12 @@
 just providing a convenient UI
 """
 from core import summarize_url
-from ner import find_entities
 
 class Summarizer:
 
-    def __init__(self, url, num_sentences=4, fmt='default',extractor=None,entities=False):
+    def __init__(self, url, num_sentences=4, 
+                 fmt='default', extractor=None, 
+                 entities=False):
 
         self.url = url
 
@@ -21,9 +22,6 @@ class Summarizer:
 
         self.summary, self.keypoints = \
             summarize_url(self.url, num_sentences, fmt)
-
-        if entities:
-            self.entities = find_entities(self.summary)
 
     def __str__(self):
         return "Summarizer object for {}".format(self.url)
