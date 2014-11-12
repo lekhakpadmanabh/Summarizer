@@ -6,8 +6,7 @@ from core import summarize_url
 class Summarizer:
 
     def __init__(self, url, num_sentences=4, 
-                 fmt='default', extractor=None, 
-                 entities=False):
+                 fmt='default', extractor=None):
 
         self.url = url
 
