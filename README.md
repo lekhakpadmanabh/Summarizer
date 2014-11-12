@@ -16,9 +16,9 @@ Returns top-[n] most relevant sentences from a document.
 
     import smrzr
     url = "http://swaminomics.org/can-congress-bounce-back-from-no-3/"
-    article = smrzr.Summarizer(url, fmt='md')
+    article = smrzr.Summarizer(url)
 
-You can also specify the number of sentences using the optional `num_sentences` (defaults to 4) or leave out the `fmt` (defaults to  `'default'`) parameter to get the summary as a list. The default extractor is [Goose](https://github.com/grangier/python-goose) which works pretty well for most websites. You can also specify a custom extractor of your own.
+You can also specify the number of sentences using the optional `num_sentences` (defaults to 4) or specify a `fmt` (defaults to  `'default'`). The default extractor is [Goose](https://github.com/grangier/python-goose) which works pretty well for most websites. You can also specify a custom extractor of your own.
 
 The article object has been populated with some attributes,
 
@@ -30,16 +30,17 @@ The meta description from the webpage, very useful if it exists and is given hig
     >>> print article.meta
     ''
 
-In this case, there is none, but `smrzr` has you covered
+In this case there was none but don't worry `smrzr` has it covered
 
     >>> print article.summary 
     u'Having been thrashed in the general election, and again in the state elections last week in Maharashtra and Haryana, can the Congress bounce back?'
 
-You can also get the key points
+Get the key points
+
     >>> print article.keypoints
     [u'In the past, the Congress has often been written off after massive defeats but bounced back.',
      u'Wherever the Congress has slipped to third or fourth position in a state, anti-incumbency has favoured the No 2 party, leaving the No 3 party out in the cold.',
      u'Despite these setbacks, the Congress remained either No 1 or No 2 in other states.',
      u'Even if it slips to No 3 in state after state, it is easily No 2 at the national level.']
 
-There is an experimental `entities` attribute for Summarizer instance which prints out any proper nouns it could detect using nltk helpers. Switch it on by using `entities=True` while instantiating Summarizer.
+There is an experimental `entities` attribute for Summarizer instance which prints out any proper nouns it could detect using nltk helpers. Switch it on by using `entities=True` while instantiating smrzr. There is also a command line interface so you can use `python -m smrzr -u <enter url here>`
