@@ -1,3 +1,4 @@
+.pypirc
 *.pyc
 *.log
 *.db

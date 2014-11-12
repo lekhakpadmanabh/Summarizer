@@ -9,7 +9,7 @@ except ImportError:
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-setup(name='KeyptSummarizer',
+setup(name='smrzr',
       version='1.0',
       description='Extracts key points from news articles',
       url='https://github.com/lekhakpadmanabh/Summarizer',
