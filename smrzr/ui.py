@@ -21,6 +21,7 @@ class Summarizer:
 
         self.summary, self.keypoints = \
             summarize_url(self.url, num_sentences, fmt)
+
         if entities:
             self.entities = find_entities(self.summary)
 

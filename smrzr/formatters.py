@@ -1,5 +1,3 @@
-
-
 class Formatter:
 
     def __init__(self, key_points,fmt):

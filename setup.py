@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -7,7 +7,6 @@ except ImportError:
 
 
 def read(fname):
-    import os
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(name='KeyptSummarizer',
@@ -16,6 +15,6 @@ setup(name='KeyptSummarizer',
       url='https://github.com/lekhakpadmanabh/Summarizer',
       long_description=read('README.md'),
       author='Pamdanabh',
-      license='GPLv3',
-      packages=['keyptsummarizer'],
+      license='Apache',
+      packages=['smrzr'],
      )
