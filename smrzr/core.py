@@ -93,10 +93,8 @@ def _title_similarity_score(full_text, title):
 def _remove_title_from_tuples(its, tss):
     index = None
     for i,el in enumerate(its):
-        if el[2] == tss[0][2]:
-            index = i
-    if index is None: 
-        raise Exception("Something fatal: tss and its don't align")
+        assert el[2] == tss[0][2], "fatal: tss and its don't align"
+        index = i
     del its[index]
     del tss[0]
     return its, tss
@@ -115,23 +113,23 @@ def _aggregrate_scores(its,tss,num_sentences):
 
 
 def _eval_meta_as_summary(meta):
-    """some crude heuristics for now"""
+    """some crude heuristics for now
+    most are implemented on bot-side
+    with domain whitelists"""
 
     if meta == '':
         return False
     if len(meta)>500:
         return False
-    if 'login' in meta:
+    if 'login' in meta.lower():
         return False
     return True
 
 def summarize_url(url, num_sentences=4, fmt='default'):
     '''returns: tuple containing
-       * human summary if contained
-         in article's meta description 
+       * single-line summary candidate 
        * key points
-       fmt='md' returns human summary and markdown
-       formatted keypoints
+       in the format specified.
     '''
 
     title, meta, full_text = goose_extractor(url)
@@ -144,9 +142,9 @@ def summarize_url(url, num_sentences=4, fmt='default'):
 
     if _eval_meta_as_summary(meta):
         summ = meta
-        if tss[0][2] in summ:
+        if tss[0][2].lower() in summ.lower():
             its, tss = _remove_title_from_tuples(its, tss)
-        if summ in tss[0][2]:
+        elif summ.lower() in tss[0][2].lower():
             summ = tss[0][2]
             its, tss = _remove_title_from_tuples(its, tss)
     else:
@@ -158,6 +156,6 @@ def summarize_url(url, num_sentences=4, fmt='default'):
     return summ, formatted
 
 def summarize_text(full_text, num_sentences=4, fmt='default'):
-    its = _intertext_score(full_text)
-    kpts = [k[2] for k in sorted(its, key = lambda tup: tup[1])[:num_sentences]]
+    its = _intertext_score(full_text)[:num_sentences]
+    kpts = [k[2] for k in sorted(its, key = lambda tup: tup[1])]
     return kpts
